@@ -38,54 +38,6 @@ exports.addReponseForm = async (req,res) => {
             const reSonFrom = await responseSopndeurForm.save();
 
     
-    //        if(champs['listeReponses'].length == 0) {
-    //         champs['listeReponses'].push({
-    //             "id" : makeid(20),
-    //             "sondeur" : req.user.id_user,
-    //             "reponse" :listRep
-    //         });
-    
-    //        }else {
-            
-    //         const newReponseListe = [];
-    
-    //         for await (const element of champs['listeReponses']) {
-    //             const obj = Object.fromEntries(element);
-    
-                
-                
-    //             if(champs['type'] == 'checkBox') {
-                    
-    //                 if(obj.sondeur == req.user.id_user && obj.id==idReponse) {
-    //                     newReponseListe.push({
-    //                         "id" : obj.id,
-    //                         "sondeur" : req.user.id_user,
-    //                         "reponse" :listRep
-    //                     });
-    
-    //                 }else {
-    //                     newReponseListe.push(element);
-    //                 }
-    
-    //             } else if(champs['type'] == 'dropdowns') {
-    // console.log("dropdowns");
-                    
-    //             }else {
-    // console.log("ekse");
-    
-    //             }
-    
-    //             console.log(obj.id );
-    //             console.log(obj.sondeur );
-    //             console.log(obj.reponse );
-    //         }
-    
-    //         champs['listeReponses'] = newReponseListe;
-    
-    //        }
-    
-        //    const c = await  champs.save();
-    
             return res.status(201).json({
                 message: 'responses crée avec succes',
                 status: 'OK',
@@ -162,6 +114,91 @@ exports.getResponseSondeur = async (req,res) => {
             data: responseSendeurForm,
             statusCode: 200
         })
+        
+    } catch (error) {
+        return  res.status(404).json({
+            message: 'Erreur creation',
+            status: 'OK',
+            data: error,
+            statusCode: 400
+        });
+    }
+
+}
+
+exports.getAllReponseByFormulaire = async (req,res) => {
+    let {idformulaire} = req.params;
+
+    try {
+
+        const champ = await require('../models/champ').find({
+            formulaire : idformulaire
+        }).exec();
+        res.json({
+            message: 'champ trouvée avec succes',
+            status: 'OK',
+            data: champ,
+            statusCode: 200
+        })
+
+        // const idChampsObj = new mongoose.Types.ObjectId(idChamps);
+        // const userIdObj = new mongoose.Types.ObjectId(req.user.id_user);
+    
+        // const responseSendeurForm = await responseSendeurFormulaire.find({
+        //     champ: idChampsObj,
+        //     sondeur: userIdObj,
+        // });
+
+        // return res.status(200).json({
+        //     message: 'responses crée avec succes',
+        //     status: 'OK',
+        //     data: responseSendeurForm,
+        //     statusCode: 200
+        // })
+        
+    } catch (error) {
+        return  res.status(404).json({
+            message: 'Erreur creation',
+            status: 'OK',
+            data: error,
+            statusCode: 400
+        });
+    }
+
+}
+
+exports.addResponseByFormulaire = async (req,res) => {
+    let {idformulaire} = req.params;
+    const idSonde = makeid(20);
+
+
+
+    try {
+
+        const formulaire = await require('../models/formulaire').findById(idformulaire).exec();
+
+        if(!formulaire) {
+            return res.status(404).json({
+                message: 'Formulaire introuvable',
+                status: 'OK',
+                data: null,
+                statusCode: 404
+            })
+        }
+
+        
+    
+
+        const champ = await require('../models/champ').find({
+            formulaire : idformulaire
+        }).exec();
+        res.json({
+            message: 'champ trouvée avec succes',
+            status: 'OK',
+            data: champ,
+            statusCode: 200
+        })
+
         
     } catch (error) {
         return  res.status(404).json({

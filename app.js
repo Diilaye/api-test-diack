@@ -29,6 +29,8 @@ app.use('/swaped-file', require('express').static('uploads'));
 app.use('/v1/api/files', require('./routes/file'));
 app.use('/v1/api/champs', require('./routes/champ'));
 app.use('/v1/api/matieres', require('./routes/matiere'));
+app.use('/v1/api/fabriques', require('./routes/fabrique'));
+app.use('/v1/api/matieres', require('./routes/matiere'));
 app.use('/v1/api/niveau-academiques', require('./routes/niveau-academique'));
 app.use('/v1/api/annee-academinques', require('./routes/annee-academinque'));
 app.use('/v1/api/formulaires', require('./routes/formaulaire-route'));

@@ -27,6 +27,8 @@ const formulaireSchema = new mongoose.Schema({
 
     responseTotal: { type: Number , default : 0 },
 
+    response : [{ type: mongoose.Schema.Types.ObjectId, ref: 'response-formulaire' , default : null}],
+
     createdAt: {
         type: Date,
         default: Date.now
