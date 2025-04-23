@@ -49,6 +49,54 @@ exports.store = async (req, res, next) => {
 
 }
 
+exports.storeUser = async (req, res, next) => {
+
+    const file = require('../models/file')();
+
+    const F = await require('../utils/base64').base64(req.body.image);
+
+    console.log(F);
+
+    if ((F == 'File to large')) {
+        return res.status(404).json({
+            message: 'Fichier trop volumineux ',
+            status: 'OK',
+            data: "",
+            statusCode: 404
+        })
+    } else {
+        console.log(F['url']);
+
+        file.url = F['url'];
+
+        file.type = F['type'];
+
+        const saveFile = await file.save();
+
+        return res.json({
+            message: 'Fichier crée avec succes',
+            status: 'OK',
+            data: saveFile,
+            statusCode: 201
+        })
+    }
+
+    try {
+
+       
+
+
+    } catch (error) {
+        res.json({
+            message: 'Erreur creation',
+            status: 'OK',
+            data: error,
+            statusCode: 400
+        })
+    }
+
+}
+
 
 
 exports.all = async (req, res, next) => {

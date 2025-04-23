@@ -7,6 +7,7 @@ const champsModel = require('../models/champ');
 const responseSendeurFormulaire = require('../models/response-sondeur-model');
 
 const mongoose = require('mongoose');
+const { response } = require('express');
 
 exports.addReponseForm = async (req,res) => {
 
@@ -210,6 +211,106 @@ exports.addResponseByFormulaire = async (req,res) => {
     }
 
 }
+
+exports.addResponseSondee = async (req,res) => {
+
+    let {id} = req.params;
+
+    const  body = req.body;
+
+    const idSonde = makeid(20);
+
+
+    try {
+
+        const formulaire = await require('../models/formulaire').findById(id).exec();
+
+        if(!formulaire) {
+            return res.status(404).json({
+                message: 'Formulaire introuvable',
+                status: 'OK',
+                data: null,
+                statusCode: 404
+            })
+        }
+       
+        const champs = await require('../models/champ').find({
+            formulaire : id
+        }).exec();
+        // console.log("champs", champs);
+
+        // Fusion de tous les champs dans une seule liste
+        const reponsesListe = Object.entries(body).flatMap(([type, obj]) =>
+            Object.entries(obj).map(([questionId, value]) => ({
+            questionId,
+            value,
+            type
+            }))
+        );
+
+        const listResponseSondee = [];
+
+
+  
+        for (let i = 0; i < champs.length; i++) {
+            
+            const champ = champs[i];
+
+            console.log("champ", reponsesListe.indexOf(champ.id));
+
+            for (let j = 0; j < reponsesListe.length; j++) {
+                const reponse = reponsesListe[j];
+
+                if (reponse.questionId === champ.id) {
+                    
+                    listResponseSondee.push({
+                        id: champ.id,
+                        value: reponse['value'],
+                        type: reponse['type']
+                    });
+                }
+            }
+           
+           
+        }
+
+
+        formulaire.responseTotal = formulaire.responseTotal + 1;
+
+        formulaire.responseSondee.push({
+            "sonde" : idSonde,
+            "reponse": listResponseSondee
+        });
+
+
+        const formulaireUpdated = await formulaire.save();
+
+       
+       
+     return    res.json({
+            message: 'champ trouvée avec succes',
+            status: 'OK',
+            data: {
+                'formulaire': formulaireUpdated,
+                'reponseSondee': listResponseSondee,
+                'sonde': idSonde
+            },
+            statusCode: 200
+        })
+
+        
+    } catch (error) {
+        return  res.status(404).json({
+            message: 'Erreur creation',
+            status: 'OK',
+            data: error,
+            statusCode: 400
+        });
+    }
+
+}
+
+
 
 
 
