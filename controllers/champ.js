@@ -1,4 +1,4 @@
-const { Info } = require('luxon');
+
 
 exports.store = async (req, res, next) => {
 
@@ -8,9 +8,11 @@ exports.store = async (req, res, next) => {
             type,
             nom,
             description,
-            listeReponses,
             idForm
         } = req.body;
+
+        console.log("req.body");
+        console.log(req.body);
 
         const champ = require('../models/champ')();
 
@@ -46,10 +48,10 @@ exports.store = async (req, res, next) => {
 
         champ.formulaire =idForm;
 
-
-
         const champSave = await champ.save();
 
+        console.log("champSave");
+        console.log(champSave);
 
         return res.status(201).json({
             message: 'champ crée avec succes',
@@ -96,6 +98,7 @@ exports.all = async (req, res, next) => {
 exports.allByFormulaire = async (req, res, next) => {
 
     try {
+        
         const champ = await require('../models/champ').find({
             formulaire : req.params.idForm
         }).exec();
@@ -198,7 +201,6 @@ exports.update = async (req, res, next) => {
 
         for (let index = 0; index < champ.listeReponses.length; index++) {
             var element = champ.listeReponses[index];
-            var element = Object.fromEntries(element.entries())
 
             if(listeReponses['id'] == element['id']) {
                 vl =1;
@@ -213,7 +215,6 @@ exports.update = async (req, res, next) => {
             const tab = [];
             for (let index = 0; index < champ.listeReponses.length; index++) {
                 var el = champ.listeReponses[index];
-                var el = Object.fromEntries(el.entries())
 
                 if(listeReponses['id'] != el['id']) {
                     tab.push(el);
@@ -247,7 +248,6 @@ exports.update = async (req, res, next) => {
 
         for (let index = 0; index < champ.listeOptions.length; index++) {
             var element = champ.listeOptions[index];    
-            var element = Object.fromEntries(element.entries()) ;
            
             
 
@@ -296,66 +296,78 @@ exports.update = async (req, res, next) => {
 }
 
 exports.reponseMultiChoice = async (req, res, next) => {
-
-    let {
-        option
-    } = req.body;
-
-    const champ = await require('../models/champ').findById(req.params.id).exec();
-
-
-    let vl = 0;
-
-    for (let index = 0; index < champ.listeReponses.length; index++) {
-        var element = champ.listeReponses[index];
-        var element = Object.fromEntries(element.entries())
-
-        if(option['id'] == element['id']) {
-            vl =1;
-        }
-        
-    }
-
-    if (vl==0) {
-     champ.listeReponses.push({ "option" : option["option"] , "id" : option['id'] , delete : 'false'});
-        
-    } else {
-        const tab = [];
-        for (let index = 0; index < champ.listeReponses.length; index++) {
-            var el = champ.listeReponses[index];
-            var el = Object.fromEntries(el.entries())
-
-            if(option['id'] != el['id']) {
-                tab.push(el);
-
-            }
-            
-        }
-        champ.listeReponses = tab;
-    }
-
-    
-
-    const champSave = await champ.save();
-
-    res.json({
-        message: 'reponse champ réussi',
-        status: 'OK',
-        data: champSave,
-        statusCode: 200
-    });
-
     try {
-      
-       } catch (error) {
-        res.status(404).json({
-            message: 'Champ non modifie',
-            status: 'NOT OK',
-            data: error,
-            statusCode: 400
-        })
-       }
-    
+        const { option } = req.body;
+
+        // Validation des données d'entrée
+        if (!option || !option.id) {
+            return res.status(400).json({
+                message: 'Option invalide - ID requis',
+                status: 'ERROR',
+                data: null,
+                statusCode: 400
+            });
+        }
+
+        const champ = await require('../models/champ').findById(req.params.id).exec();
+
+        if (!champ) {
+            return res.status(404).json({
+                message: 'Champ non trouvé',
+                status: 'ERROR',
+                data: null,
+                statusCode: 404
+            });
+        }
+
+        // Initialiser listeOptions si elle n'existe pas
+        if (!champ.listeOptions) {
+            champ.listeOptions = [];
+        }
+
+        // Vérifier si l'option existe déjà dans les options
+        const existingOptionIndex = champ.listeOptions.findIndex(opt => {
+            return opt.id === option.id;
+        });
+
+        if (option.delete === 'true') {
+            // Supprimer l'option
+            if (existingOptionIndex !== -1) {
+                champ.listeOptions.splice(existingOptionIndex, 1);
+            }
+        } else {
+            if (existingOptionIndex === -1) {
+                // Ajouter la nouvelle option
+                champ.listeOptions.push({
+                    option: option.option,
+                    id: option.id,
+                    delete: 'false'
+                });
+            } else {
+                // Mettre à jour l'option existante
+                champ.listeOptions[existingOptionIndex].option = option.option;
+                champ.listeOptions[existingOptionIndex].delete = 'false';
+            }
+        }
+
+        const champSave = await champ.save();
+
+        res.json({
+            message: 'Options champ mise à jour avec succès',
+            status: 'OK',
+            data: champSave,
+            statusCode: 200
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour des options:', error);
+        res.status(500).json({
+            message: 'Erreur interne du serveur',
+            status: 'ERROR',
+            data: error.message || error,
+            statusCode: 500
+        });
+    }
 }
 
 exports.reponseTexield = async (req, res, next) => {    

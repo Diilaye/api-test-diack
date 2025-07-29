@@ -3,21 +3,6 @@ const mongoose = require('mongoose');
 const champModel = new mongoose.Schema({
     type: {
         type: String,
-        enum: [ 'textField',
-                'textArea',
-                'singleChoice',
-                'yesno',
-                'multiChoice',
-                'nomComplet',
-                'email',
-                'addresse',
-                'telephone',
-                'image',
-                'file',
-                'separator',
-                'explication',
-                'separator-title'
-    ],
         required: true
     },
 
@@ -28,11 +13,15 @@ const champModel = new mongoose.Schema({
     formulaire: { type: mongoose.Schema.Types.ObjectId, ref: 'Formulaire' },
 
     listeReponses: [{
-        type: Map,
+        option: String,
+        id: String,
+        delete: String
     }],
 
     listeOptions: [{
-        type: Map,
+        option: String,
+        id: String,
+        delete: String
     }],
 
     isObligatoire: { type: String, default: '0' },

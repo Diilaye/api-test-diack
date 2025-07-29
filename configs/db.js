@@ -7,7 +7,7 @@ require('dotenv').config({
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_RUI);
+        const conn = await mongoose.connect(process.env.MONGO_URL_DEV);
 
 
         console.log("MongoBD : connected ", conn.connections[0].host);

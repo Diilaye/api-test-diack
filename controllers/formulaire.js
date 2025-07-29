@@ -11,9 +11,11 @@ const nodemailer = require("nodemailer");
 
 const mongoose = require('mongoose');
 
-const objectPopulate = [{
-    path: 'folderForm'
-}, {
+const objectPopulate = [
+//     {
+//      path: 'folderForm', model: 'folder-form'
+// }, 
+{
     path: 'logo',
 }, {
     path: 'cover',
@@ -26,6 +28,9 @@ exports.add = async (req,res) => {
 
     console.log("folder");
     console.log(folder);
+
+    console.log("req.body");
+    console.log(req.body);
     
 
     const formulaire = formulaireModel();
@@ -43,6 +48,11 @@ exports.add = async (req,res) => {
     formulaire.date = DateTime.now();
 
     const formulaireSave = await formulaire.save();
+
+    console.log("formulaireSave");
+    console.log(formulaireSave);
+
+    
 
     const form =await formulaireModel.findById(formulaireSave.id).populate(objectPopulate);
 
@@ -264,12 +274,16 @@ exports.update = async (req,res) => {
     
 
     try {
-        let { titre, description , champs , folder , cover , logo } = req.body ;
+        let { titre, description , champs , folder , cover , logo , archived } = req.body ;
  
         const formulaire = await  formulaireModel.findById(req.params.id);
     
         if(titre != undefined) {
            formulaire.titre = titre;
+        }
+
+         if(archived != undefined) {
+           formulaire.archived = archived;
         }
     
         if(description != undefined) {
@@ -292,7 +306,6 @@ exports.update = async (req,res) => {
          if(logo != undefined) {
             formulaire.logo = logo;
          }
-    
     
         const formulaireSave = await formulaire.save();
 
@@ -365,9 +378,15 @@ exports.one = async (req,res) => {
 
 
 exports.allByUser = async (req,res) => {
+
+    
+    
+
+     
    
     try {
 
+       
         const formulaire = await formulaireModel.find({ admin : req.user.id_user }).populate(objectPopulate).exec();
 
         return res.status(200).json({
@@ -376,7 +395,6 @@ exports.allByUser = async (req,res) => {
             data: formulaire,
             statusCode: 200
     });
-
 
         
     } catch (error) {

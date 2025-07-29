@@ -31,6 +31,36 @@ const formulaireSchema = new mongoose.Schema({
     
     responseSondee : [{ type: mongoose.Schema.Types.Map , default : null}],
 
+    // Paramètres généraux
+    settings: {
+        general: {
+            connectionRequired: { type: Boolean, default: false },
+            autoSave: { type: Boolean, default: true },
+            publicForm: { type: Boolean, default: false },
+            limitResponses: { type: Boolean, default: false },
+            maxResponses: { type: Number, default: 100 },
+            anonymousResponses: { type: Boolean, default: false }
+        },
+        notifications: {
+            enabled: { type: Boolean, default: true },
+            emailNotifications: { type: Boolean, default: true },
+            dailySummary: { type: Boolean, default: false }
+        },
+        scheduling: {
+            startDate: { type: Date, default: null },
+            endDate: { type: Date, default: null },
+            timezone: { type: String, default: 'Europe/Paris' }
+        },
+        localization: {
+            language: { type: String, default: 'fr' },
+            timezone: { type: String, default: 'Europe/Paris' }
+        },
+        security: {
+            dataEncryption: { type: Boolean, default: true },
+            anonymousResponses: { type: Boolean, default: false }
+        }
+    },
+
     createdAt: {
         type: Date,
         default: Date.now
@@ -38,6 +68,7 @@ const formulaireSchema = new mongoose.Schema({
     archived: { type: String , default : '0' },
 
     deleted: { type: String , default : '0' },
+    isPublic: { type: Boolean, default: false },
 }, {
     toJSON: {
         transform: function (doc, ret) {

@@ -1,4 +1,32 @@
 
+// Middleware d'authentification basique
+exports.authenticate = (req, res, next) => {
+    //get the token from the header if present
+    let token = req.headers["x-access-token"] || req.headers["authorization"] || '';
+    //if no token found, return response (without going to the next middelware)
+    token = token.replace('Bearer ', '');
+
+    if (!token) return res.status(401).json({
+        success: false,
+        message: 'Token d\'authentification requis',
+        statusCode: 401
+    });
+
+    require("jsonwebtoken").verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({
+                success: false,
+                message: 'Token invalide',
+                statusCode: 403
+            });
+        }
+
+        req.user = decoded;
+        req.token = token;
+        next();
+    });
+};
+
 // Middleware to check if user has required role
 exports.checkRole = (role) => {
 

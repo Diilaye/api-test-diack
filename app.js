@@ -35,8 +35,11 @@ app.use('/v1/api/niveau-academiques', require('./routes/niveau-academique'));
 app.use('/v1/api/annee-academinques', require('./routes/annee-academinque'));
 app.use('/v1/api/formulaires', require('./routes/formaulaire-route'));
 app.use('/v1/api/formulaires-reponses', require('./routes/response-formulaire-route'));
+app.use('/v1/api/reponses', require('./routes/reponse')); // Nouvelle route pour les réponses
 app.use('/v1/api/folders', require('./routes/folder-route'));
 app.use('/v1/api/users', require('./routes/user'));
+app.use('/v1/api/formulaire-settings', require('./routes/formulaire-settings-route')); // Nouvelle route pour les paramètres
+app.use('/v1/api/share', require('./routes/share-routes')); // Nouvelle route pour le partage
 
 
 app.get('/', (req, res) => {
@@ -44,9 +47,12 @@ app.get('/', (req, res) => {
 })
 
 require('./configs/db')().then(_ => {
+    // Initialiser le service de planification d'emails
+    require('./services/email-scheduler-service');
+    
     const port = process.env.PORT
     app.listen(port, () => {
-        console.log(process.env.MONGO_RUI);
+        console.log(process.env.MONGO_URL_DEV);
         console.log(`Server started on ${port}`);
     });
 });

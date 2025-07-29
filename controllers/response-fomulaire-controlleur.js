@@ -212,103 +212,176 @@ exports.addResponseByFormulaire = async (req,res) => {
 
 }
 
-exports.addResponseSondee = async (req,res) => {
-
-    let {id} = req.params;
-
-    const  body = req.body;
-
-    const idSonde = makeid(20);
-
-
+exports.addResponseSondee = async (req, res) => {
     try {
+        const { id: formulaireId } = req.params;
+        const { sondeId, responses } = req.body;
 
-        const formulaire = await require('../models/formulaire').findById(id).exec();
+        // Validation des paramètres requis
+        if (!formulaireId || !responses) {
+            return res.status(400).json({
+                message: 'Paramètres manquants: formulaireId et responses sont requis',
+                status: 'ERROR',
+                data: null,
+                statusCode: 400
+            });
+        }
 
-        if(!formulaire) {
+        // Vérifier que le formulaire existe
+        const formulaire = await require('../models/formulaire').findById(formulaireId).exec();
+        if (!formulaire) {
             return res.status(404).json({
                 message: 'Formulaire introuvable',
-                status: 'OK',
+                status: 'ERROR',
                 data: null,
                 statusCode: 404
-            })
+            });
         }
-       
+
+        // Récupérer tous les champs du formulaire
         const champs = await require('../models/champ').find({
-            formulaire : id
-        }).exec();
-        // console.log("champs", champs);
+            formulaire: formulaireId
+        }).populate('listeOptions').exec();
 
-        // Fusion de tous les champs dans une seule liste
-        const reponsesListe = Object.entries(body).flatMap(([type, obj]) =>
-            Object.entries(obj).map(([questionId, value]) => ({
-            questionId,
-            value,
-            type
-            }))
-        );
+        if (!champs || champs.length === 0) {
+            return res.status(404).json({
+                message: 'Aucun champ trouvé pour ce formulaire',
+                status: 'ERROR',
+                data: null,
+                statusCode: 404
+            });
+        }
 
-        const listResponseSondee = [];
+        // Générer un ID unique pour la sonde si non fourni
+        const finalSondeId = sondeId || makeid(20);
 
+        // Traiter les réponses
+        const reponsesFormattees = [];
 
-  
-        for (let i = 0; i < champs.length; i++) {
-            
-            const champ = champs[i];
+        // Parcourir tous les champs du formulaire
+        for (const champ of champs) {
+            const champId = champ._id.toString();
+            let reponseValue = null;
+            let reponseType = champ.type;
 
-            console.log("champ", reponsesListe.indexOf(champ.id));
+            // Chercher la réponse correspondante dans les données envoyées
+            for (const [typeChamp, reponsesParType] of Object.entries(responses)) {
+                if (reponsesParType && typeof reponsesParType === 'object') {
+                    if (reponsesParType[champId] !== undefined) {
+                        reponseValue = reponsesParType[champId];
+                        reponseType = typeChamp;
+                        break;
+                    }
+                }
+            }
 
-            for (let j = 0; j < reponsesListe.length; j++) {
-                const reponse = reponsesListe[j];
+            // Valider les champs obligatoires
+            if (champ.isObligatoire === '1' && (reponseValue === null || reponseValue === '' || reponseValue === undefined)) {
+                return res.status(400).json({
+                    message: `Le champ "${champ.nom}" est obligatoire`,
+                    status: 'ERROR',
+                    data: {
+                        champManquant: {
+                            id: champId,
+                            nom: champ.nom,
+                            type: champ.type
+                        }
+                    },
+                    statusCode: 400
+                });
+            }
 
-                if (reponse.questionId === champ.id) {
-                    
-                    listResponseSondee.push({
-                        id: champ.id,
-                        value: reponse['value'],
-                        type: reponse['type']
+            // Valider les réponses à choix multiples/unique
+            if ((champ.type === 'choix_unique' || champ.type === 'choix_multiple') && reponseValue) {
+                const optionsValides = champ.listeOptions ? champ.listeOptions.map(opt => opt.option) : [];
+                
+                if (champ.type === 'choix_multiple' && Array.isArray(reponseValue)) {
+                    // Vérifier que toutes les options sélectionnées sont valides
+                    const optionsInvalides = reponseValue.filter(option => !optionsValides.includes(option));
+                    if (optionsInvalides.length > 0) {
+                        return res.status(400).json({
+                            message: `Options invalides pour le champ "${champ.nom}": ${optionsInvalides.join(', ')}`,
+                            status: 'ERROR',
+                            data: { optionsValides },
+                            statusCode: 400
+                        });
+                    }
+                } else if (champ.type === 'choix_unique' && !optionsValides.includes(reponseValue)) {
+                    return res.status(400).json({
+                        message: `Option invalide pour le champ "${champ.nom}": ${reponseValue}`,
+                        status: 'ERROR',
+                        data: { optionsValides },
+                        statusCode: 400
                     });
                 }
             }
-           
-           
+
+            // Ajouter la réponse formatée
+            if (reponseValue !== null && reponseValue !== undefined) {
+                reponsesFormattees.push({
+                    champId: champId,
+                    champNom: champ.nom,
+                    champType: champ.type,
+                    valeur: reponseValue,
+                    typeReponse: reponseType,
+                    dateReponse: new Date()
+                });
+            }
         }
 
+        // Créer l'objet de réponse sonde
+        const nouvelleSondeReponse = {
+            sondeId: finalSondeId,
+            dateSubmission: new Date(),
+            reponses: reponsesFormattees,
+            statut: 'complete',
+            metadata: {
+                nombreReponses: reponsesFormattees.length,
+                nombreChampsTotal: champs.length,
+                tauxCompletion: Math.round((reponsesFormattees.length / champs.length) * 100)
+            }
+        };
 
-        formulaire.responseTotal = formulaire.responseTotal + 1;
+        // Ajouter la réponse au formulaire
+        formulaire.responseSondee.push(nouvelleSondeReponse);
+        formulaire.responseTotal = (formulaire.responseTotal || 0) + 1;
 
-        formulaire.responseSondee.push({
-            "sonde" : idSonde,
-            "reponse": listResponseSondee
+        // Sauvegarder le formulaire mis à jour
+        const formulaireMisAJour = await formulaire.save();
+
+        // Retourner la réponse de succès
+        return res.status(201).json({
+            message: 'Réponse de sonde enregistrée avec succès',
+            status: 'SUCCESS',
+            data: {
+                sondeId: finalSondeId,
+                formulaireId: formulaireId,
+                nombreReponses: reponsesFormattees.length,
+                tauxCompletion: nouvelleSondeReponse.metadata.tauxCompletion,
+                dateSubmission: nouvelleSondeReponse.dateSubmission,
+                reponses: reponsesFormattees,
+                formulaire: {
+                    id: formulaireMisAJour._id,
+                    titre: formulaireMisAJour.titre,
+                    responseTotal: formulaireMisAJour.responseTotal
+                }
+            },
+            statusCode: 201
         });
 
-
-        const formulaireUpdated = await formulaire.save();
-
-       
-       
-     return    res.json({
-            message: 'champ trouvée avec succes',
-            status: 'OK',
-            data: {
-                'formulaire': formulaireUpdated,
-                'reponseSondee': listResponseSondee,
-                'sonde': idSonde
-            },
-            statusCode: 200
-        })
-
-        
     } catch (error) {
-        return  res.status(404).json({
-            message: 'Erreur creation',
-            status: 'OK',
-            data: error,
-            statusCode: 400
+        console.error('Erreur lors de l\'ajout de la réponse sonde:', error);
+        return res.status(500).json({
+            message: 'Erreur interne du serveur',
+            status: 'ERROR',
+            data: {
+                error: error.message,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            },
+            statusCode: 500
         });
     }
-
-}
+};
 
 
 
