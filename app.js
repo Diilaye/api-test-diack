@@ -15,6 +15,9 @@ app.use(require('body-parser').urlencoded({
     limit: '10000mb'
 }));
 
+//use cors to allow cross-origin requests
+// This middleware allows all origins, methods, and headers
+// You can customize it further based on your requirements
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
