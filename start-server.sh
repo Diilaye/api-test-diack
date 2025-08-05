@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Script de démarrage pour l'API de partage de formulaires
@@ -42,8 +43,10 @@ fi
 # Démarrer le serveur
 echo "🌟 Démarrage du serveur..."
 echo "   - Port: ${PORT:-4013}"
-echo "   - Environnement: ${NODE_ENV:-development}"
-echo "   - MongoDB: ${MONGO_URL_DEV:-mongodb://localhost:27017/formulaire_db}"
+# Définit NODE_ENV à "development" si non défini
+NODE_ENV="${NODE_ENV:-development}"
+echo "   - Environnement: ${NODE_ENV}"
+echo "   - MongoDB: ${MONGO_URL_DEV:-mongodb://localhost:27017/form}"
 
 # Lancer le serveur
 if [ "$NODE_ENV" = "development" ]; then
