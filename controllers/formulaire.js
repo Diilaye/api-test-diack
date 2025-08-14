@@ -168,8 +168,6 @@ exports.sendMailFormulaire = async (req,res) => {
             if(inclureForm == '1') {
 
                     sonde.password = password;
-
-
               
                  // Définir les informations de l'e-mail
                     mailOptions = {
