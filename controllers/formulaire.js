@@ -150,7 +150,7 @@ exports.sendMailFormulaire = async (req,res) => {
                    from: '"Suport" <simplon@simplonsolution.com>',
                    to: element,
                    subject: object,
-                   html: ` ${message} <strong> <a href ="https://test-diack.nataal.shop/formulaire-view-sonde/${idFormulaire}?email=${element}">cliquez ici pour acceder au formulaire. </a></strong> </br> Voici votre mot de passe pour vous connecter sur la plate-forme : <strong>${password}</strong>  `,
+                   html: ` ${message} <strong> <a href ="https://test-diag.saharux.com/formulaire-view-sonde/${idFormulaire}?email=${element}">cliquez ici pour acceder au formulaire. </a></strong> </br> Voici votre mot de passe pour vous connecter sur la plate-forme : <strong>${password}</strong>  `,
                };
 
            }else {
@@ -176,7 +176,7 @@ exports.sendMailFormulaire = async (req,res) => {
                     from: '"Suport" <simplon@simplonsolution.com>',
                     to: element,
                     subject: object,
-                    html: ` ${message} <strong> <a href ="https://test-diack.nataal.shop/formulaire-view/66fd56d81d1b6d379b695f9c">cliquez ici pour acceder au formulaire </a></strong> </br> Voici votre mot de passe pour vous connecter sur la plate-forme : <strong>${password}</strong>  `,
+                    html: ` ${message} <strong> <a href ="https://test-diag.saharux.com/formulaire-view/66fd56d81d1b6d379b695f9c">cliquez ici pour acceder au formulaire </a></strong> </br> Voici votre mot de passe pour vous connecter sur la plate-forme : <strong>${password}</strong>  `,
                 };
 
             }else {

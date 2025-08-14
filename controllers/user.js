@@ -71,7 +71,7 @@ exports.store = async (req, res, next) => {
                 from: '"Suport" <simplon@simplonsolution.com>',
                 to: email,
                 subject: 'création de votre simplon formulaire',
-                html: `votre compte viens d'être crééer  allez vous conecter sur le lien <strong> <a href ="https://test-diack.nataal.shop/">ci-aprés</a></strong> veuillez vous connecter pour completer votre profile. <br/> Votre mot de passe est passer123`,
+                html: `votre compte viens d'être crééer  allez vous conecter sur le lien <strong> <a href ="https://test-diag.saharux.com/">ci-aprés</a></strong> veuillez vous connecter pour completer votre profile. <br/> Votre mot de passe est passer123`,
             };
             // Envoyer l'e-mail
             transporter.sendMail(mailOptions, (error, info) => {
@@ -104,7 +104,7 @@ exports.store = async (req, res, next) => {
                 from: '"Suport" <simplon@simplonsolution.com>',
                 to: email,
                 subject: 'création de votre simplon formulaire',
-                html: `votre compte viens d'être crééer  allez vous conecter sur le lien <strong> <a href ="https://test-diack.nataal.shop/">ci-aprés</a></strong> veuillez vous connecter pour completer votre profile. <br/> Votre mot de passe est passer123`,
+                html: `votre compte viens d'être crééer  allez vous conecter sur le lien <strong> <a href ="https://test-diag.saharux.com/">ci-aprés</a></strong> veuillez vous connecter pour completer votre profile. <br/> Votre mot de passe est passer123`,
             };
             // Envoyer l'e-mail
             transporter.sendMail(mailOptions, (error, info) => {
