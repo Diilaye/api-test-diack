@@ -55,7 +55,10 @@ require('./configs/db')().then(_ => {
     
     const port = process.env.PORT
     app.listen(port, () => {
-        console.log(process.env.MONGO_URL_DEV);
+
+        process.env.NODE_ENV === "development"
+            ? console.log("MongoDB URL for Development: ", process.env.MONGO_URL_DEV)
+            : console.log("MongoDB URI: ", process.env.MONGO_URI);
         console.log(`Server started on ${port}`);
     });
 });
