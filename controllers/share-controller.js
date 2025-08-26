@@ -65,7 +65,7 @@ class ShareController {
 
       // Générer un ID unique pour le partage
       const shareId = crypto.randomUUID();
-      const shareUrl = `${process.env.FRONTEND_URL}sonde/formulaire/${shareId}`;
+      const shareUrl = `${process.env.FRONTEND_URL}sonde/formulaire/${formulaireId}`;
       
       console.log('DEBUG ShareController: Génération du partage:', {
         shareId,
