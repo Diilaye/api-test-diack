@@ -5,28 +5,9 @@ require('dotenv').config({
 });
 
 // Configuration CORS améliorée pour la production
-const corsOptions = {
-    origin: [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'https://test-diag.saharux.com',
-        'https://api-test-diag.saharux.com'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: [
-        'Origin',
-        'X-Requested-With',
-        'Content-Type',
-        'Accept',
-        'Authorization',
-        'Cache-Control',
-        'Pragma'
-    ],
-    credentials: true,
-    optionsSuccessStatus: 200
-};
+const cors = require('cors');
 
-app.use(require('cors')(corsOptions));
+app.use(cors());
 
 app.use(require('body-parser').json({
     limit: '10000mb'
@@ -38,32 +19,8 @@ app.use(require('body-parser').urlencoded({
 }));
 
 // Middleware CORS additionnel pour gérer les cas spéciaux
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    const allowedOrigins = [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'https://test-diag.saharux.com',
-        'https://api-test-diag.saharux.com'
-    ];
-    
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-    
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Max-Age', '1800');
-    
-    // Gérer les requêtes preflight OPTIONS
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-    
-    next();
-});
+app.use(cors());
+
 
 
 app.use('/swaped-file', require('express').static('uploads'));
