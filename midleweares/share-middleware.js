@@ -1,5 +1,5 @@
 const Share = require('../models/share-model');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 /**
  * Middleware pour valider l'accès à un formulaire partagé

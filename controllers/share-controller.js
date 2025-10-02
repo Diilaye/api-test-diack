@@ -4,7 +4,7 @@ const Formulaire = require('../models/formulaire');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 class ShareController {
   

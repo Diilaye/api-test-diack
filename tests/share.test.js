@@ -303,7 +303,7 @@ describe('Share API', () => {
     let shareId;
 
     beforeEach(async () => {
-      const bcrypt = require('bcrypt');
+      const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('testPassword123', 10);
       
       const share = new Share({
