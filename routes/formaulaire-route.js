@@ -11,4 +11,8 @@ routes.post('/', require('../midleweares/auth').checkManyRole(['sondeur', 'agent
 routes.put('/:id', require('../midleweares/auth').checkManyRole(['sondeur', 'agent']), require('../controllers/formulaire').update);
 routes.delete('/:id', require('../midleweares/auth').checkManyRole(['sondeur', 'agent']), require('../controllers/formulaire').delete);
 
+// Routes pour bloquer/débloquer (admin uniquement)
+routes.put('/:id/block', require('../midleweares/auth').checkManyRole(['admin']), require('../controllers/formulaire').blockFormulaire);
+routes.put('/:id/unblock', require('../midleweares/auth').checkManyRole(['admin']), require('../controllers/formulaire').unblockFormulaire);
+
 module.exports = routes;

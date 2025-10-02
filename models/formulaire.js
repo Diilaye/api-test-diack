@@ -68,6 +68,11 @@ const formulaireSchema = new mongoose.Schema({
     archived: { type: String , default : '0' },
 
     deleted: { type: String , default : '0' },
+    
+    closed: { type: String , default : '0' },
+    
+    blocked: { type: String , default : '0' },
+    
     isPublic: { type: Boolean, default: false },
 }, {
     toJSON: {

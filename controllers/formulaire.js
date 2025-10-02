@@ -272,7 +272,7 @@ exports.update = async (req,res) => {
     
 
     try {
-        let { titre, description , champs , folder , cover , logo , archived } = req.body ;
+        let { titre, description , champs , folder , cover , logo , archived, closed } = req.body ;
  
         const formulaire = await  formulaireModel.findById(req.params.id);
     
@@ -282,6 +282,10 @@ exports.update = async (req,res) => {
 
          if(archived != undefined) {
            formulaire.archived = archived;
+        }
+
+         if(closed != undefined) {
+           formulaire.closed = closed;
         }
     
         if(description != undefined) {
@@ -473,6 +477,80 @@ exports.delete = async (req,res) => {
             status: 'OK',
             data: error,
             statusCode: 404
+        });
+    }
+}
+
+// Bloquer un formulaire (admin uniquement)
+exports.blockFormulaire = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const formulaire = await formulaireModel.findByIdAndUpdate(
+            id,
+            { blocked: '1' },
+            { new: true }
+        ).populate(objectPopulate);
+
+        if (!formulaire) {
+            return res.status(404).json({
+                message: 'Formulaire introuvable',
+                status: 'ERROR',
+                data: null,
+                statusCode: 404
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Formulaire bloqué avec succès',
+            status: 'OK',
+            data: formulaire,
+            statusCode: 200
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Erreur lors du blocage du formulaire',
+            status: 'ERROR',
+            data: error,
+            statusCode: 500
+        });
+    }
+}
+
+// Débloquer un formulaire (admin uniquement)
+exports.unblockFormulaire = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const formulaire = await formulaireModel.findByIdAndUpdate(
+            id,
+            { blocked: '0' },
+            { new: true }
+        ).populate(objectPopulate);
+
+        if (!formulaire) {
+            return res.status(404).json({
+                message: 'Formulaire introuvable',
+                status: 'ERROR',
+                data: null,
+                statusCode: 404
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Formulaire débloqué avec succès',
+            status: 'OK',
+            data: formulaire,
+            statusCode: 200
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Erreur lors du déblocage du formulaire',
+            status: 'ERROR',
+            data: error,
+            statusCode: 500
         });
     }
 }

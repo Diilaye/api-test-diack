@@ -1,5 +1,3 @@
-
-
 const responseModel = require('../models/response-formulaire');
 
 const champsModel = require('../models/champ');

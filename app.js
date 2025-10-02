@@ -43,6 +43,9 @@ app.use('/v1/api/folders', require('./routes/folder-route'));
 app.use('/v1/api/users', require('./routes/user'));
 app.use('/v1/api/formulaire-settings', require('./routes/formulaire-settings-route')); // Nouvelle route pour les paramètres
 app.use('/v1/api/share', require('./routes/share-routes')); // Nouvelle route pour le partage
+app.use('/v1/api/export', require('./routes/export-routes')); // Nouvelle route pour l'export CSV
+app.use('/v1/api/activities', require('./routes/activity-routes')); // Nouvelle route pour les activités
+app.use('/v1/api/modern-users', require('./routes/modern-user-routes')); // Nouvelle route pour la gestion moderne des utilisateurs
 
 
 app.get('/', (req, res) => {
