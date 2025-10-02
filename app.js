@@ -77,6 +77,7 @@ app.use('/v1/api/share', require('./routes/share-routes')); // Nouvelle route po
 app.use('/v1/api/export', require('./routes/export-routes')); // Nouvelle route pour l'export CSV
 app.use('/v1/api/activities', require('./routes/activity-routes')); // Nouvelle route pour les activités
 app.use('/v1/api/modern-users', require('./routes/modern-user-routes')); // Nouvelle route pour la gestion moderne des utilisateurs
+app.use('/v1/api/stats', require('./routes/stats-routes')); // Nouvelle route pour les statistiques
 
 
 app.get('/', (req, res) => {
