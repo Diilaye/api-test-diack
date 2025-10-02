@@ -4,7 +4,29 @@ require('dotenv').config({
     path: './.env'
 });
 
-app.use(require('cors')());
+// Configuration CORS améliorée pour la production
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://test-diag.saharux.com',
+        'https://api-test-diag.saharux.com'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+        'Origin',
+        'X-Requested-With',
+        'Content-Type',
+        'Accept',
+        'Authorization',
+        'Cache-Control',
+        'Pragma'
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(require('cors')(corsOptions));
 
 app.use(require('body-parser').json({
     limit: '10000mb'
@@ -15,16 +37,33 @@ app.use(require('body-parser').urlencoded({
     limit: '10000mb'
 }));
 
-//use cors to allow cross-origin requests
-// This middleware allows all origins, methods, and headers
-// You can customize it further based on your requirements
-
+// Middleware CORS additionnel pour gérer les cas spéciaux
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept');
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://test-diag.saharux.com',
+        'https://api-test-diag.saharux.com'
+    ];
+    
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Max-Age', '1800');
+    
+    // Gérer les requêtes preflight OPTIONS
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+    
     next();
-  });
+});
 
 
 app.use('/swaped-file', require('express').static('uploads'));
