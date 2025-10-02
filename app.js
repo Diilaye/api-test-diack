@@ -7,7 +7,47 @@ require('dotenv').config({
 // Configuration CORS améliorée pour la production
 const cors = require('cors');
 
-app.use(cors());
+// Configuration CORS spécifique pour les domaines de production
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permettre les requêtes sans origin (ex: mobile apps, Postman)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'https://test-diag.saharux.com',
+            'https://api-test-diag.saharux.com',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://localhost:4013',
+            'http://127.0.0.1:4013'
+        ];
+        
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        } else {
+            console.log(`CORS: Origin ${origin} not allowed`);
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+        'Origin',
+        'X-Requested-With',
+        'Content-Type',
+        'Accept',
+        'Authorization',
+        'Cache-Control',
+        'Pragma'
+    ],
+    exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+    maxAge: 86400 // 24 heures
+};
+
+app.use(cors(corsOptions));
+
+// Gérer manuellement les requêtes OPTIONS pour s'assurer que CORS fonctionne
+app.options('*', cors(corsOptions));
 
 app.use(require('body-parser').json({
     limit: '10000mb'
@@ -17,11 +57,6 @@ app.use(require('body-parser').urlencoded({
     extended: true,
     limit: '10000mb'
 }));
-
-// Middleware CORS additionnel pour gérer les cas spéciaux
-app.use(cors());
-
-
 
 app.use('/swaped-file', require('express').static('uploads'));
 
